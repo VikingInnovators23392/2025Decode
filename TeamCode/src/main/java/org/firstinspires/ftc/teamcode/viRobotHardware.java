@@ -57,7 +57,7 @@ public class viRobotHardware {
     private final boolean INVERT_STRAFE_ODOMETRY = false;      //  When strafing to the LEFT, the odometry value MUST increase.  If it does not, flip the value of this constant.
 
     private static final double DRIVE_GAIN          = 0.03;    //was 0.03 // Strength of axial position control
-    private static final double DRIVE_ACCEL         = 1.0;     //was 2.0 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
+    private static final double DRIVE_ACCEL         = 0.5;     //was 2.0 // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
     private static final double DRIVE_TOLERANCE     = 1.0;     //was 0.5 // Controller is is "inPosition" if position error is < +/- this amount
     private static final double DRIVE_DEADBAND      = 0.2;     //was 0.2 // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
     private static final double DRIVE_MAX_AUTO      = 0.6;     //was 0.6 // "default" Maximum Axial power limit during autonomous
@@ -428,6 +428,9 @@ public class viRobotHardware {
     }
     public double getIntakeVelocity() {
         return viperMotor.getVelocity();
+    }
+    public void setIntakeVelocity(double velocity) {
+        viperMotor.setVelocity(velocity);
     }
     public void setViperPower(double power) {
         viperMotor.setPower(power);

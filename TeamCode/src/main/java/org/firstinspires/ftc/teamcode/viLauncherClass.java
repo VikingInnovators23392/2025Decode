@@ -123,7 +123,8 @@ public class viLauncherClass extends LinearOpMode {
                         break;
                     case OFF:
                         intakeState = IntakeState.ON;
-                        robot.setViperPower(1);
+                        //robot.setViperPower(1);
+                        robot.setIntakeVelocity(2600);
                         break;
                 }
             }
@@ -204,6 +205,7 @@ public class viLauncherClass extends LinearOpMode {
                 sleep(500);
                 intakeState = IntakeState.ON;
                 robot.setViperPower(0.6); //Intake ON
+                //robot.setIntakeVelocity(2000);  //Intake ON
                 feederTimer.reset();
                 launchCloseState = LaunchCloseState.LAUNCHING;
                 break;
@@ -211,7 +213,8 @@ public class viLauncherClass extends LinearOpMode {
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
                     robot.setArmPosition(0.75);  //Close feeder
                     intakeState = IntakeState.ON;
-                    robot.setViperPower(1); //Intake ON
+                    //robot.setViperPower(1); //Intake ON
+                    robot.setIntakeVelocity(2600);  //Intake ON
                     robot.setLauncherVelocity(STOP_SPEED);
                     launchCloseState = LaunchCloseState.IDLE;
                 }
