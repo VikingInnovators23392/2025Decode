@@ -41,8 +41,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class BlueFar extends LinearOpMode {
     final double FEED_TIME_SECONDS = 1.75; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double LAUNCHER_FAR_TARGET_VELOCITY = 1350; //Target velocity for far goal
-    final double LAUNCHER_FAR_MIN_VELOCITY = 1325; //minimum required to start a shot for far goal.
+    final double INTAKE_INTAKING_VELOCITY = 3000;
+    final double INTAKE_LAUNCHING_VELOCITY = 2300;
+    final double LAUNCHER_FAR_TARGET_VELOCITY = 1300; //Target velocity for far goal
+    final double LAUNCHER_FAR_MIN_VELOCITY = 1275; //minimum required to start a shot for far goal.
     private enum LaunchFarState {
         IDLE,
         SPIN_UP,
@@ -74,11 +76,13 @@ public class BlueFar extends LinearOpMode {
         robot.resetHeading();  // Reset heading to set a baseline for Auto
 
         robot.setLauncherVelocity(LAUNCHER_FAR_TARGET_VELOCITY);
+
         /* 1st Shoot */
         // Drive robot forward
         robot.drive(105, 0.8, 0);
         // Turn the robot to CounterClockwise
         robot.turnTo(43, 1.0, 0);
+
         // 1st Soot
         while(shotRequested) {
             launchFar();
@@ -86,16 +90,18 @@ public class BlueFar extends LinearOpMode {
         // Turn the robot to CounterClockwise
         robot.turnTo(90, 1.0, 0);
         // Drive robot forward left to the Artifacts
-        robot.driveStrafe(30, 35, 1.0, 0.8, 0);
+        robot.driveStrafe(30, 45, 0.8, 0.8, 0);
 
         /* 2nd Shoot */
         // Driver the robot forward to intake the 3 Artifacts
         robot.drive(  40, 0.75, 0);
+        // Drive robot backward to avoid GATE
+        robot.drive(-15, 1.0, 0);
         // Drive robot backward right
-        robot.driveStrafe(-65, -30, 1.0, 0.8,0);
+        robot.driveStrafe(-65, -30, 0.8, 0.8,0);
         // Turn the robot to Clockwise
         robot.turnTo(43, 1.0, 0);
-
+/*
         // 2nd shoot
         shotRequested = true;
         launchFarState = LaunchFarState.IDLE;
@@ -105,13 +111,14 @@ public class BlueFar extends LinearOpMode {
         // Turn the robot to CounterClockwise
         robot.turnTo(90, 1.0, 0);
         // Drive robot forward left to the Artifacts
-        robot.driveStrafe(25, 65, 1.0, 0.8, 0);
-
+        robot.driveStrafe(25, 65, 0.8, 0.8, 0);
+*/
         /* 3rd Shoot */
+        /*
         // Driver the robot forward to intake the 3 Artifacts
-        robot.drive(  45, 0.5, 0);
+        robot.drive(  45, 0.75, 0);
         // Drive robot backward right
-        robot.driveStrafe(-65, -75, 1.0, 0.8,0);
+        robot.driveStrafe(-65, -75, 0.8, 0.8,0);
 
         // Turn the robot to Clockwise
         robot.turnTo(43, 1.0, 0);
@@ -124,7 +131,7 @@ public class BlueFar extends LinearOpMode {
 
         // Drive robot left to leave Launch Zone
         robot.strafe(40, 1.0, 0);
-
+*/
         //sleep(3000);
         // Send telemetry messages to explain controls and show robot status
             telemetry.addData("Autonomous:", "Done");
@@ -149,14 +156,16 @@ public class BlueFar extends LinearOpMode {
             case LAUNCH:
                 robot.setArmPosition(0.4);  //Open feeder
                 sleep(10);
-                robot.setViperPower(0.9); //Intake ON
+                //robot.setViperPower(0.9); //Intake ON
+                robot.setIntakeVelocity(INTAKE_LAUNCHING_VELOCITY); //Intake ON
                 feederTimer.reset();
                 launchFarState = LaunchFarState.LAUNCHING;
                 break;
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
                     robot.setArmPosition(0.75);  //Close feeder
-                    robot.setViperPower(1); //Intake ON
+                    //robot.setViperPower(1); //Intake ON
+                    robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY); //Intake ON
                     shotRequested = false;
                 }
                 break;
