@@ -1,31 +1,3 @@
-/* Copyright (c) 2022 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 package org.firstinspires.ftc.teamcode;
 
@@ -39,8 +11,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name="BlueFar", group="Robot")
 //@Disabled
 public class BlueFar extends LinearOpMode {
+    final double GOAL_HEADING_DEG = 43;
+    final double WALL_HEADING_DEG = 90;
     final double FEED_TIME_SECONDS = 1.75; //The feeder servos run this long when a shot is requested.
-    final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
+    final double STOP_POWER = 0.0; //
+    final double DRIVE_FULL_POWER = 1.0; //
+    final double DRIVE_INTAKE_POWER = 0.6;
+    final double TURN_MAX_POWER = 0.6;
+    final double INTAKE_INTAKING_VELOCITY = 3600;
+    final double INTAKE_LAUNCHING_VELOCITY = 2000;
     final double LAUNCHER_FAR_TARGET_VELOCITY = 1350; //Target velocity for far goal
     final double LAUNCHER_FAR_MIN_VELOCITY = 1325; //minimum required to start a shot for far goal.
     private enum LaunchFarState {
@@ -74,47 +53,51 @@ public class BlueFar extends LinearOpMode {
         robot.resetHeading();  // Reset heading to set a baseline for Auto
 
         robot.setLauncherVelocity(LAUNCHER_FAR_TARGET_VELOCITY);
+
         /* 1st Shoot */
-        // Drive robot forward
-        robot.drive(105, 0.8, 0);
-        // Turn the robot to CounterClockwise
-        robot.turnTo(43, 1.0, 0);
-        // 1st Soot
+        // Drive robot forward to Launch zone
+        robot.drive(70, DRIVE_FULL_POWER, 0);
+        // Turn the robot to CounterClockwise to face GOAL
+        robot.turnTo(GOAL_HEADING_DEG, TURN_MAX_POWER, 0);
+        // 1st Shoot
         while(shotRequested) {
             launchFar();
         }
-        // Turn the robot to CounterClockwise
-        robot.turnTo(90, 1.0, 0);
-        // Drive robot forward left to the Artifacts
-        robot.driveStrafe(30, 35, 1.0, 0.8, 0);
+        // Turn the robot to CounterClockwise to face WALL
+        robot.turnTo(WALL_HEADING_DEG, TURN_MAX_POWER, 0);
+        // Drive robot forward left to the Middle Artifacts
+        robot.driveStrafe(14, 22, DRIVE_FULL_POWER, DRIVE_FULL_POWER, 0);
 
-        /* 2nd Shoot */
-        // Driver the robot forward to intake the 3 Artifacts
-        robot.drive(  40, 0.75, 0);
-        // Drive robot backward right
-        robot.driveStrafe(-65, -30, 1.0, 0.8,0);
-        // Turn the robot to Clockwise
-        robot.turnTo(43, 1.0, 0);
-
+        /* 2nd Shoot Middle Artifacts */
+        // Drive the robot forward to intake the 3 Middle Artifacts
+        robot.drive(  35, DRIVE_INTAKE_POWER, 0);
+        sleep(500);
+        // Drive robot backward to avoid GATE
+        robot.drive(-15, DRIVE_FULL_POWER, 0);
+        // Drive robot backward right to Launch zone
+        robot.driveStrafe(-30, -22, DRIVE_FULL_POWER, DRIVE_FULL_POWER,0);
+        // Turn the robot to Clockwise face GOAL
+        robot.turnTo(GOAL_HEADING_DEG, TURN_MAX_POWER, 0);
         // 2nd shoot
         shotRequested = true;
         launchFarState = LaunchFarState.IDLE;
         while(shotRequested) {
             launchFar();
         }
-        // Turn the robot to CounterClockwise
-        robot.turnTo(90, 1.0, 0);
-        // Drive robot forward left to the Artifacts
-        robot.driveStrafe(25, 65, 1.0, 0.8, 0);
+        // Turn the robot to CounterClockwise to face WALL
+        robot.turnTo(WALL_HEADING_DEG, TURN_MAX_POWER, 0);
+        // Drive robot forward left to the Left side Artifacts
+        robot.driveStrafe(14, 42, DRIVE_FULL_POWER, DRIVE_FULL_POWER, 0);
 
-        /* 3rd Shoot */
-        // Driver the robot forward to intake the 3 Artifacts
-        robot.drive(  45, 0.5, 0);
-        // Drive robot backward right
-        robot.driveStrafe(-65, -75, 1.0, 0.8,0);
+        /* 3rd Shoot Left side Artifacts */
+        // Driver the robot forward to intake the 3 Left side Artifacts
+        robot.drive(  34, DRIVE_INTAKE_POWER, 0);
+        sleep(500);
+        // Drive robot backward right to Launch zone
+        robot.driveStrafe(-46, -42, DRIVE_FULL_POWER, DRIVE_FULL_POWER,0);
 
-        // Turn the robot to Clockwise
-        robot.turnTo(43, 1.0, 0);
+        // Turn the robot to Clockwise to face GOAL
+        robot.turnTo(GOAL_HEADING_DEG, TURN_MAX_POWER, 0);
         // 3rd Shoot
         shotRequested = true;
         launchFarState = LaunchFarState.IDLE;
@@ -123,7 +106,7 @@ public class BlueFar extends LinearOpMode {
         }
 
         // Drive robot left to leave Launch Zone
-        robot.strafe(40, 1.0, 0);
+        robot.strafe(20, DRIVE_FULL_POWER, 0);
 
         //sleep(3000);
         // Send telemetry messages to explain controls and show robot status
@@ -149,14 +132,16 @@ public class BlueFar extends LinearOpMode {
             case LAUNCH:
                 robot.setArmPosition(0.4);  //Open feeder
                 sleep(10);
-                robot.setViperPower(0.9); //Intake ON
+                //robot.setViperPower(0.9); //Intake ON
+                robot.setIntakeVelocity(INTAKE_LAUNCHING_VELOCITY); //Intake ON
                 feederTimer.reset();
                 launchFarState = LaunchFarState.LAUNCHING;
                 break;
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
                     robot.setArmPosition(0.75);  //Close feeder
-                    robot.setViperPower(1); //Intake ON
+                    //robot.setViperPower(1); //Intake ON
+                    robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY); //Intake ON
                     shotRequested = false;
                 }
                 break;

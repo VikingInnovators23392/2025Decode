@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /* FTC DECODE 2025 Team Viking Innovators #23392 */
-/* AUTO: Blue Goal - Close position for Launch */
+/* AUTO: Red Goal - Close position for Launch */
 
-@Autonomous(name="BlueClose", group="Robot")
+@Autonomous(name="RedClose", group="Robot")
 //@Disabled
-public class BlueClose extends LinearOpMode {
+public class RedClose extends LinearOpMode {
     final double GOAL_HEADING_DEG = 0;
-    final double WALL_HEADING_DEG = 41;
+    final double WALL_HEADING_DEG = -41;
     final double FEED_TIME_SECONDS = 1.75; //The feeder servos run this long when a shot is requested.
     final double STOP_POWER = 0.0; //
     final double DRIVE_FULL_POWER = 1.0; //
@@ -44,7 +44,7 @@ public class BlueClose extends LinearOpMode {
 
         // Wait for driver to press start
         telemetry.addData(">", "Touch Play to run Auto");
-        telemetry.addData("Autonomous:", "Blue-CLOSE");
+        telemetry.addData("Autonomous:", "Red-CLOSE");
         telemetry.update();
 
         // Send telemetry message to signify robot waiting;
@@ -61,18 +61,18 @@ public class BlueClose extends LinearOpMode {
         while(shotRequested) {
             launchClose();
         }
-        // Turn the robot to CounterClockwise to face WALL
+        // Turn the robot to Clockwise to face WALL
         robot.turnTo(WALL_HEADING_DEG, TURN_MAX_POWER, 0);
-        // Drive robot left to the Right side Artifacts
-        robot.strafe(24, DRIVE_FULL_POWER, 0);
+        // Drive robot right to the Left side Artifacts
+        robot.strafe(-24, DRIVE_FULL_POWER, 0);
 
-        /* 2nd Shoot Right side Artifacts */
-        // Driver the robot forward to intake the 3 Right side Artifacts
+        /* 2nd Shoot Left side Artifacts */
+        // Driver the robot forward to intake the 3 Left side Artifacts
         robot.drive(  28, DRIVE_INTAKE_POWER, 0);  //INTAKE
         sleep(500);
-        // Drive robot backward right to Launch zone
-        robot.driveStrafe(-24, -22, DRIVE_FULL_POWER, DRIVE_FULL_POWER,0);
-        // Turn the robot to Clockwise to face GOAL
+        // Drive robot backward left to Launch zone
+        robot.driveStrafe(-24, 22, DRIVE_FULL_POWER, DRIVE_FULL_POWER,0);
+        // Turn the robot to CounterClockwise to face GOAL
         robot.turnTo(GOAL_HEADING_DEG, TURN_MAX_POWER, 0);
         // 2nd Shoot
         shotRequested = true;
@@ -80,10 +80,10 @@ public class BlueClose extends LinearOpMode {
         while(shotRequested) {
             launchClose();
         }
-        // Turn the robot to CounterClockwise to face WALL
+        // Turn the robot to Clockwise to face WALL
         robot.turnTo(WALL_HEADING_DEG, TURN_MAX_POWER, 0);
-        // Drive robot left to the Middle Artifacts
-        robot.strafe(48, DRIVE_FULL_POWER, 0);
+        // Drive robot right to the Middle Artifacts
+        robot.strafe(-48, DRIVE_FULL_POWER, 0);
 
         /* 3rd Shoot */
         // Driver the robot forward to intake the 3 Middle Artifacts
@@ -91,9 +91,9 @@ public class BlueClose extends LinearOpMode {
         sleep(500);
         // Drive robot backward to avoid GATE
         robot.drive(-15, DRIVE_FULL_POWER, 0);
-        // Drive robot backward right to Launch zone
-        robot.driveStrafe(-16, -46, DRIVE_FULL_POWER, DRIVE_FULL_POWER,0);
-        // Turn the robot to Clockwise to face GOAL
+        // Drive robot backward left to Launch zone
+        robot.driveStrafe(-16, 46, DRIVE_FULL_POWER, DRIVE_FULL_POWER,0);
+        // Turn the robot to CounterClockwise to face GOAL
         robot.turnTo(GOAL_HEADING_DEG, TURN_MAX_POWER, 0);
         // 3rd Shoot
         shotRequested = true;
@@ -101,12 +101,12 @@ public class BlueClose extends LinearOpMode {
         while(shotRequested) {
             launchClose();
         }
-        // Turn the robot to CounterClockwise to face the WALL
+        // Turn the robot to Clockwise to face the WALL
         robot.turnTo(WALL_HEADING_DEG, TURN_MAX_POWER, 0);
-        // Drive robot left to the Left side Artifacts
-        robot.strafe(68, DRIVE_FULL_POWER, 0);
+        // Drive robot right to the Right side Artifacts
+        robot.strafe(-68, DRIVE_FULL_POWER, 0);
 
-        // Driver the robot forward to intake the 3 Left side Artifacts
+        // Driver the robot forward to intake the 3 Right side Artifacts
         robot.drive(  36, DRIVE_INTAKE_POWER, 0);
         robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY); //Intake ON
         sleep(500);

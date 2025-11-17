@@ -37,15 +37,23 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name="viLauncherClass", group="Robot")
 //@Disabled
 public class viLauncherClass extends LinearOpMode {
+    final double FEEDER_CLOSE_POSITION = 0.75;
+    final double FEEDER_OPEN_POSITION = 0.4;
     final double FEED_TIME_SECONDS = 2.0; //The feeder servos run this long when a shot is requested.
+    final double FEED_TIME_SECONDS_DISTANT = 3.0;
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double LAUNCHER_CLOSE_TARGET_VELOCITY = 1075; //in ticks/second for the close goal.
-    final double LAUNCHER_CLOSE_MIN_VELOCITY = 1050; //minimum required to start a shot for close goal.
-    final double LAUNCHER_FAR_TARGET_VELOCITY = 1470; //Target velocity for far goal
-    final double LAUNCHER_FAR_MIN_VELOCITY = 1445; //minimum required to start a shot for far goal.
 
-    double launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY; //These variables allow
-    double launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
+    final double INTAKE_INTAKING_VELOCITY = 3600;
+    final double INTAKE_LAUNCHING_VELOCITY = 2000;
+    final double LAUNCHER_CLOSE_TARGET_VELOCITY = 1100; //in ticks/second for the close goal.
+    final double LAUNCHER_CLOSE_MIN_VELOCITY = 1075; //minimum required to start a shot for close goal.
+    final double LAUNCHER_FAR_TARGET_VELOCITY = 1400; //Target velocity for far goal
+    final double LAUNCHER_FAR_MIN_VELOCITY = 1375; //minimum required to start a shot for far goal.
+    final double LAUNCHER_DISTANT_TARGET_VELOCITY = 1765; //Target velocity for far goal
+    final double LAUNCHER_DISTANT_MIN_VELOCITY = 1740; //minimum required to start a shot for far goal.
+
+    double launcherTarget = LAUNCHER_DISTANT_TARGET_VELOCITY; //These variables allow
+    double launcherMin = LAUNCHER_DISTANT_MIN_VELOCITY;
     //boolean shotingRequested = false;
     private enum LaunchState {
         IDLE,
@@ -65,9 +73,16 @@ public class viLauncherClass extends LinearOpMode {
         LAUNCH,
         LAUNCHING,
     }
+    private enum LaunchDistantState {
+        IDLE,
+        SPIN_UP,
+        LAUNCH,
+        LAUNCHING,
+    }
     private LaunchState launchState;
     private LaunchCloseState launchCloseState;
     private LaunchFarState launchFarState;
+    private LaunchDistantState launchDistantState;
     private enum IntakeState {
         ON,
         OFF;
@@ -92,6 +107,7 @@ public class viLauncherClass extends LinearOpMode {
         launchState = LaunchState.IDLE;
         launchCloseState = LaunchCloseState.IDLE;
         launchFarState = LaunchFarState.IDLE;
+        launchDistantState = LaunchDistantState.IDLE;
         //feederTimer.reset();
 
         // Send telemetry message to signify robot waiting;
@@ -123,7 +139,8 @@ public class viLauncherClass extends LinearOpMode {
                         break;
                     case OFF:
                         intakeState = IntakeState.ON;
-                        robot.setViperPower(1);
+                        //robot.setViperPower(1);
+                        robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY);
                         break;
                 }
             }
@@ -142,27 +159,11 @@ public class viLauncherClass extends LinearOpMode {
                         break;
                 }
             }
-/*
-            if (gamepad2.leftBumperWasPressed()) {
-                launcherDistance = LauncherDistance.CLOSE;
-                launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY;
-                launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
-                shotingRequested = true;
-            }
-            else if (gamepad2.rightBumperWasPressed()) {
-                launcherDistance = LauncherDistance.FAR;
-                launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;
-                launcherMin = LAUNCHER_FAR_MIN_VELOCITY;
-                shotingRequested = true;
-            }
-            else {
-                shotingRequested = false;
-            }
- */
+
             launchClose(gamepad2.leftBumperWasPressed());
             launchFar(gamepad2.rightBumperWasPressed());
-            //launch(shotingRequested);
-            //launch(gamepad2.leftBumperWasPressed());
+            launchDistant(gamepad2.xWasPressed());
+
             // Send telemetry messages to explain controls and show robot status
             telemetry.addData("Ascent Up/Down", "gamepad2 Y/A");
             telemetry.addLine("dpad | ")
@@ -200,7 +201,7 @@ public class viLauncherClass extends LinearOpMode {
                 }
                 break;
             case LAUNCH:
-                robot.setArmPosition(0.4);  //Open feeder
+                robot.setArmPosition(FEEDER_OPEN_POSITION);  //Open feeder
                 sleep(500);
                 intakeState = IntakeState.ON;
                 robot.setViperPower(0.6); //Intake ON
@@ -209,9 +210,10 @@ public class viLauncherClass extends LinearOpMode {
                 break;
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-                    robot.setArmPosition(0.75);  //Close feeder
+                    robot.setArmPosition(FEEDER_CLOSE_POSITION);  //Close feeder
                     intakeState = IntakeState.ON;
-                    robot.setViperPower(1); //Intake ON
+                    //robot.setViperPower(1); //Intake ON
+                    robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY); //Intake ON
                     robot.setLauncherVelocity(STOP_SPEED);
                     launchCloseState = LaunchCloseState.IDLE;
                 }
@@ -235,7 +237,7 @@ public class viLauncherClass extends LinearOpMode {
                 }
                 break;
             case LAUNCH:
-                robot.setArmPosition(0.4);  //Open feeder
+                robot.setArmPosition(FEEDER_OPEN_POSITION);  //Open feeder
                 sleep(500);
                 intakeState = IntakeState.ON;
                 robot.setViperPower(0.6); //Intake ON
@@ -244,16 +246,51 @@ public class viLauncherClass extends LinearOpMode {
                 break;
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-                    robot.setArmPosition(0.75);  //Close feeder
+                    robot.setArmPosition(FEEDER_CLOSE_POSITION);  //Close feeder
                     intakeState = IntakeState.ON;
-                    robot.setViperPower(1); //Intake ON
+                    //robot.setViperPower(1); //Intake ON
+                    robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY); //Intake ON
                     robot.setLauncherVelocity(STOP_SPEED);
                     launchFarState = LaunchFarState.IDLE;
                 }
                 break;
         }
     }
-
+    void launchDistant(boolean shotRequested) {
+        switch (launchDistantState) {
+            case IDLE:
+                if (shotRequested) {
+                    launchDistantState = LaunchDistantState.SPIN_UP;
+                }
+                break;
+            case SPIN_UP:
+                intakeState = IntakeState.OFF;
+                robot.setViperPower(0); //Intake OFF
+                robot.setLauncherVelocity(LAUNCHER_DISTANT_TARGET_VELOCITY);
+                if (robot.getLauncherVelocity() > LAUNCHER_DISTANT_MIN_VELOCITY) {
+                    launchDistantState = LaunchDistantState.LAUNCH;
+                }
+                break;
+            case LAUNCH:
+                robot.setArmPosition(FEEDER_OPEN_POSITION);  //Open feeder
+                sleep(500);
+                intakeState = IntakeState.ON;
+                robot.setViperPower(0.5); //Intake ON
+                feederTimer.reset();
+                launchDistantState = LaunchDistantState.LAUNCHING;
+                break;
+            case LAUNCHING:
+                if (feederTimer.seconds() > FEED_TIME_SECONDS_DISTANT) {
+                    robot.setArmPosition(FEEDER_CLOSE_POSITION);  //Close feeder
+                    intakeState = IntakeState.ON;
+                    //robot.setViperPower(1); //Intake ON
+                    robot.setIntakeVelocity(INTAKE_INTAKING_VELOCITY); //Intake ON
+                    robot.setLauncherVelocity(STOP_SPEED);
+                    launchDistantState = LaunchDistantState.IDLE;
+                }
+                break;
+        }
+    }
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
@@ -268,7 +305,7 @@ public class viLauncherClass extends LinearOpMode {
                 }
                 break;
             case LAUNCH:
-                robot.setArmPosition(0.4);  //Open feeder
+                robot.setArmPosition(FEEDER_OPEN_POSITION);  //Open feeder
                 sleep(500);
                 intakeState = IntakeState.ON;
                 robot.setViperPower(0.5);
@@ -277,7 +314,7 @@ public class viLauncherClass extends LinearOpMode {
                 break;
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-                    robot.setArmPosition(0.75);  //Close feeder
+                    robot.setArmPosition(FEEDER_CLOSE_POSITION);  //Close feeder
                     launchState = LaunchState.IDLE;
                 }
                 break;
